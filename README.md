@@ -1,5 +1,5 @@
 Project Title: Multivariate Time Series Sales Forecasting with MLForecast
-
+sdf
 Description
 
 This project delves into forecasting sales from multiple multivariate time series leveraging the MLForecast library. MLForecast streamlines time series forecasting by simplifying data handling, automating feature engineering, and offering multi-model support for a comprehensive analysis.
