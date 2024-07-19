@@ -12,14 +12,24 @@ from sklearn.preprocessing import MinMaxScaler, RobustScaler
 
 class MLForecast_Evaluator:
     def __init__(self, fcst, valid, future_df, h=1):
+        """
+        Initialize the MLForecast_Evaluator class with forecast, validation, and future data.
+        
+        Parameters:
+        - fcst: Forecast model object
+        - valid: Validation dataset
+        - future_df: Future data for prediction
+        - h: Forecast horizon
+        """
         self.fcst = fcst
         self.valid = valid
         self.future_df = future_df
         self.h = h
-        self.mean_rmse_valid = None # To use for filename (mean rmse of all models)
+        self.mean_rmse_valid = None  # To use for filename (mean RMSE of all models)
         
         # Generate predictions
         self.predictions = fcst.predict(h=self.h, X_df=future_df)
+        
         # Replace negative predictions with 0
         numeric_cols = self.predictions.select_dtypes(include=[np.number])
         numeric_cols[numeric_cols < 0] = 0
@@ -36,15 +46,14 @@ class MLForecast_Evaluator:
         
     def plot_time_series(self, n_samples: int = 4, figsize: tuple = None, random_state: Optional[int] = None):
         """
-        Plots the time series for a random sample of unique_ids.
+        Plot the time series for a random sample of unique_ids.
         
-        Parameters
-        ----------
-        n_samples : int, optional
+        Parameters:
+        - n_samples : int, optional
             Number of samples to plot (default is 4)
-        figsize : tuple, optional
+        - figsize : tuple, optional
             Figure size (width, height) in inches
-        random_state : int, optional
+        - random_state : int, optional
             Seed for random number generator
         """
     
@@ -116,6 +125,12 @@ class MLForecast_Evaluator:
         plt.show()
 
     def calculate_metrics(self) -> pd.DataFrame:
+        """
+        Calculate RMSE and R2 metrics for each model on training and validation sets.
+        
+        Returns:
+        - metrics_df: DataFrame containing the calculated metrics
+        """
         metrics = {}
 
         for model in self.model_columns:
@@ -144,6 +159,9 @@ class MLForecast_Evaluator:
         return metrics_df.sort_values(by='RMSE_valid')
     
     def plot_feature_importances(self):
+        """
+        Plot the feature importances for each model.
+        """
         # Initialize an empty DataFrame to store the feature importances
         df = pd.DataFrame()
 
@@ -196,9 +214,10 @@ class MLForecast_Evaluator:
         plt.tight_layout()
         plt.show()
 
-
     def plot_metrics(self):
-        
+        """
+        Plot metrics: scatter plot of predicted vs actual values and distribution of residuals.
+        """
         # Create a figure with two subplots side by side
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 8))
 
@@ -240,18 +259,15 @@ class MLForecast_Evaluator:
                 residuals_scaled = scaler.fit_transform(clean_residuals.values.reshape(-1, 1)).flatten()
                 
                 # Plot KDE with increased bandwidth
-                #sns.kdeplot(residuals_scaled, label=model, ax=ax2, bw_adjust=1.5, color=palette[i])
                 sns.histplot(residuals_scaled, bins=30, label=model, kde=False, color=palette[i], alpha=0.5, ax=ax2)
                 
-                # Add rug plot
-                #sns.rugplot(residuals_scaled, ax=ax2, color=palette[i], alpha=0.7)
             else:
                 print(f"Warning: No valid residuals for model {model}")
 
         ax2.set_title('Distribution of Scaled Residuals')
         ax2.set_xlabel('Scaled Residual')
         ax2.set_ylabel('Density')
-        ax2.legend(title='Model', fontsize=16) #change legend size
+        ax2.legend(title='Model', fontsize=16) # Change legend size
         
         # Set x-axis limits for better visibility
         ax2.set_xlim(-5, 5)
@@ -259,13 +275,18 @@ class MLForecast_Evaluator:
         plt.tight_layout()
         plt.show()
 
-
     def predict_save_submission(self, model_name, test_index):
+        """
+        Predict and save the submission file for the specified model.
         
+        Parameters:
+        - model_name: Name of the model to use for prediction
+        - test_index: Index of the test set
+        """
         if model_name not in self.model_columns:
             raise ValueError(f"Model '{model_name}' not found. Available models are: {', '.join(self.model_columns)}")
 
-        test_preds = self.predictions[self.predictions['ds'].isin(test_index)] #Test index was defined in split
+        test_preds = self.predictions[self.predictions['ds'].isin(test_index)]  # Test index was defined in split
         test_preds = test_preds[['unique_id', model_name]]
         
         # Rename the model column to 'monthly_sales'
