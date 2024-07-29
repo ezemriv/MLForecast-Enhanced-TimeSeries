@@ -113,7 +113,11 @@ class MLForecast_Evaluator:
             axs[i].set_title(f'Time Series - ID: {unique_id}')
             axs[i].set_xlabel('Date')
             axs[i].set_ylabel('Value')
-        
+            
+            # Add diagonal xticks
+            axs[i].tick_params(axis='x', rotation=45)
+            axs[i].xaxis.set_major_locator(plt.MaxNLocator(nbins=6))
+
         # Remove any unused subplots
         for j in range(i + 1, len(axs)):
             fig.delaxes(axs[j])
