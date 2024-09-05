@@ -1,3 +1,5 @@
+<img src="https://img.shields.io/badge/Python-white?logo=Python" style="height: 25px; width: auto;">  <img src="https://img.shields.io/badge/pandas-white?logo=pandas&logoColor=250458" style="height: 25px; width: auto;">  <img src="https://img.shields.io/badge/NumPy-white?logo=numpy&logoColor=013243" style="height: 25px; width: auto;">  <img src="https://img.shields.io/badge/Scikit_learn-white?logo=scikitlearn&logoColor=F7931E" style="height: 25px; width: auto;">
+
 # Multivariate Time Series Sales Forecasting with MLForecast
 
 ## Description
@@ -11,6 +13,36 @@ This project delves into forecasting sales from multiple multivariate time serie
 - **Scalability:** Handles massive datasets and large-scale forecasting problems efficiently.
 - **Flexibility:** Accommodates various ML models, including tree-based models and neural networks.
 - **Integration with popular ML libraries:** Works seamlessly with scikit-learn, LightGBM, etc.
+
+Example of MLForecast object instantiation including several models, feature engineering, and target transformation:
+
+```python
+fcst = MLForecast(
+    models=models,
+    freq='M',
+    lags=[1,2],
+    lag_transforms={
+        1: [
+            (rolling_mean, 3),
+            (rolling_std, 3),
+            ExpandingMean(),
+            ExponentiallyWeightedMean(alpha=0.5),
+            ExpandingStd(),
+            diff_over_previous, (diff_over_previous, 2)
+        ],
+        2: [
+            (rolling_mean, 3),
+            (rolling_std, 3),
+            ExpandingMean(),
+            ExponentiallyWeightedMean(alpha=0.5),
+            ExpandingStd(),
+            diff_over_previous, (diff_over_previous, 2)
+        ],
+    },
+    target_transforms=[GlobalSklearnTransformer(sk_log1p), Differences([1])],
+    # Note that MLForecast takes care of transforming predictions back to the original scale.
+)
+```
 
 ## Project Structure
 

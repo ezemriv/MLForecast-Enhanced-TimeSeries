@@ -3,6 +3,7 @@ data/
 submissions/
 catboost_info/
 other_nb/
+mlruns/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
